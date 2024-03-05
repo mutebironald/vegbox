@@ -8,7 +8,7 @@ const connectDB = connect(url, {
 })
   .then(
     () => console.log("Databse connected-----"),
-    () => console.log("Error connecting to database----")
+    (error) => console.log("Error connecting to database----", error)
   )
   .catch((err) => {
     console.log(err);
