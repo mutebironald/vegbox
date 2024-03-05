@@ -5,6 +5,8 @@ const { Schema, model } = require("mongoose");
  */
 const vegetableSchema = new Schema({
   name: String,
+  color: String,
+  price: String,
 });
 
-module.exports = model('Vegetable', vegetableSchema)
+module.exports = model("Vegetable", vegetableSchema);
