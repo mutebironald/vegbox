@@ -2,12 +2,9 @@ const { connect } = require("mongoose");
 
 const url = process.env.MONGO_URI;
 
-const connectDB = connect(url, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
+const connectDB = connect(url)
   .then(
-    () => console.log("Databse connected-----"),
+    () => console.log("Database connected-----"),
     (error) => console.log("Error connecting to database----", error)
   )
   .catch((err) => {
