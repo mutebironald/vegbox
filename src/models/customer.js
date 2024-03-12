@@ -8,4 +8,4 @@ const customerSchema = new Schema({
   subscription: { type: String, enum: ["weekly", "fortnightly", "monthly"] },
 });
 
-models.exports = model("Customer", customerSchema);
+module.exports = model("Customer", customerSchema);
