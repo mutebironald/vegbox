@@ -2,12 +2,15 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const Customer = require("../models/customer");
-const Subscription = require("../models/subscription");
+// const Subscription = require("../models/subscription");
 
 exports.register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
-    const customer = new Customer({ name, email, password });
+    const saltRounds = parseInt(process.env.SALT_ROUNDS);
+    const salt = await bcrypt.genSalt(saltRounds);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    const customer = new Customer({ name, email, password: hashedPassword });
     await customer.save();
     return res.status(201).json({ customer });
   } catch (err) {
@@ -18,11 +21,11 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const customer = await Customer.find({ email });
+    const customer = await Customer.findOne({ email });
     if (!customer) {
       return res.status(404).json({ message: "Customer not found" });
     }
-    const isPasswordValid = bcrypt.compare(password, customer.password);
+    const isPasswordValid = await bcrypt.compare(password, customer.password);
     if (!isPasswordValid) {
       return res.status(404).json({ message: "Invalid user" });
     }
@@ -31,7 +34,7 @@ exports.login = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
-    return res.json(201).json({ token });
+    return res.status(201).json({ token });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
@@ -39,15 +42,15 @@ exports.login = async (req, res) => {
 
 exports.updatePreferences = async (req, res) => {
   try {
-    const { customerId } = rq.params;
-    const { customerPreferences } = req.body;
+    const { id: customerId } = req.params;
+    const { preferences } = req.body;
     const customer = await Customer.findById(customerId);
     if (!customer) {
       return res
         .status(404)
         .json({ message: `Customer with id ${customerId} not found` });
     }
-    customer.preferences = customerPreferences;
+    customer.preferences = preferences;
     await customer.save();
     return res
       .status(200)
@@ -57,21 +60,21 @@ exports.updatePreferences = async (req, res) => {
   }
 };
 
-exports.updateSubscription = async (req, res) => {
-  try {
-    //
-    const { customerId } = req.params;
-    const { frequency } = req.body;
-    const subscription = await Subscription.findOne({ customer: customerId });
-    if (!subscription) {
-      return res.status(404).json({ message: "Subscription not found" });
-    }
-    subscription.frequency = frequency;
-    await subscription.save();
-    return res
-      .status(200)
-      .json({ message: "subscription updated successfully" });
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-};
+// exports.updateSubscription = async (req, res) => {
+//   try {
+//     //
+//     const { customerId } = req.params;
+//     const { frequency } = req.body;
+//     const subscription = await Subscription.findOne({ customer: customerId });
+//     if (!subscription) {
+//       return res.status(404).json({ message: "Subscription not found" });
+//     }
+//     subscription.frequency = frequency;
+//     await subscription.save();
+//     return res
+//       .status(200)
+//       .json({ message: "subscription updated successfully" });
+//   } catch (error) {
+//     return res.status(500).json({ error: error.message });
+//   }
+// };
