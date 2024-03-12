@@ -15,9 +15,9 @@ exports.createSubscription = async (req, res) => {
 
 exports.updateSubscription = async (req, res) => {
   try {
-    const { customerId } = req.params;
+    const { id: customerId } = req.params;
     const { frequency } = req.body;
-    const subscription = await Subscription.findOne({ customer: customerId });
+    const subscription = await Subscription.findById(customerId);
     if (!subscription) {
       return res.status(404).json({ message: "Subscription not found" });
     }
