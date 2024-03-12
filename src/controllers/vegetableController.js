@@ -1,4 +1,5 @@
 const Vegetable = require("../models/vegetable");
+const redisClient = require("../utils/redisClient");
 
 exports.createVegetable = async (req, res) => {
   try {
@@ -16,7 +17,12 @@ exports.createVegetable = async (req, res) => {
 exports.getAllVegetables = async (req, res) => {
   try {
     const vegetables = await Vegetable.find();
-    return res.status(200).json({ vegetables });
+    redisClient.set(req.originalUrl, JSON.stringify(vegetables), (err) => {
+      if (err) {
+        console.log("Error caching vegetables: ", err);
+      }
+      return res.status(200).json({ vegetables });
+    });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
@@ -24,11 +30,16 @@ exports.getAllVegetables = async (req, res) => {
 
 exports.getvegetableById = async (req, res) => {
   try {
-    const { vegetableId } = req.params;
-    const vegetable = Vegetable.findById(vegetableId);
+    const { id: vegetableId } = req.params;
+    const vegetable = await Vegetable.findById(vegetableId);
     if (!vegetable) {
       return res.status(404).json({ message: "Vegetable not found" });
     }
+    redisClient.set(req.originalUrl, JSON.stringify(vegetable), (err) => {
+      if (err) {
+        console.log("Error caching vegetable: ", err);
+      } 
+    });
     return res.status(200).json({ vegetable });
   } catch (error) {
     return res.status(500).json({ error: error.message });
@@ -37,7 +48,7 @@ exports.getvegetableById = async (req, res) => {
 
 exports.updateVegetable = async (req, res) => {
   try {
-    const { vegetableId } = req.paams;
+    const { id:vegetableId } = req.params;
     const { name, color, price } = req.body;
     const updatedVegetable = await Vegetable.findByIdAndUpdate(
       vegetableId,
@@ -49,7 +60,7 @@ exports.updateVegetable = async (req, res) => {
     }
     return res
       .status(200)
-      .json({ message: "Vegetable successfully updated", vegetable });
+      .json({ message: "Vegetable successfully updated", updatedVegetable });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
@@ -57,7 +68,7 @@ exports.updateVegetable = async (req, res) => {
 
 exports.deleteVegetable = async (req, res) => {
   try {
-    const { vegetableId } = req.params;
+    const { id: vegetableId } = req.params;
     const deletedVegetable = await Vegetable.findByIdAndDelete(vegetableId);
     if (!deletedVegetable) {
       return res.status(404).json({ message: "Vegetable not found" });
