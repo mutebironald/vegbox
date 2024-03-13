@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const Customer = require("../models/customer");
+const { isValidEmail, isValidPassword } = require("../utils/validator");
 // const Subscription = require("../models/subscription");
 
 exports.register = async (req, res) => {
@@ -10,6 +11,17 @@ exports.register = async (req, res) => {
     const saltRounds = parseInt(process.env.SALT_ROUNDS);
     const salt = await bcrypt.genSalt(saltRounds);
     const hashedPassword = await bcrypt.hash(password, salt);
+    if (!isValidEmail(email)) {
+      return res.status(400).json({ message: "Email must be valid" });
+    }
+    if (!isValidPassword(password)) {
+      return res
+        .status(400)
+        .json({
+          message:
+            "Password must contain an uppercase, a lowercase, digit, special character and  > 8 characters to be valid ",
+        });
+    }
     const customer = new Customer({ name, email, password: hashedPassword });
     await customer.save();
     return res.status(201).json({ customer });
