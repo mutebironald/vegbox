@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { getBoxContents, swapItems } = require("../controllers/boxController");
+const { getBoxContents, swapItems, createBox, updateBox } = require("../controllers/boxController");
 
 const {
   register,
@@ -59,13 +59,16 @@ router.post("/customers/login", login);
 router.put("/customers/:id/preferences", updatePreferences);
 
 //box
+router.post("/boxes/swap", swapItems);
+router.post('/boxes/:id',createBox)
+router.put('/boxes/:id/update', updateBox)
 router.get(
   "/boxes/:boxId/contents",
   // authMiddleware,
   // cacheMiddleware,
   getBoxContents
 );
-router.post("/boxes/:boxId/swap", swapItems);
+
 
 //Apply error handling middleware for all routes
 router.use(errorHandlingMiddleware);
