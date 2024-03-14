@@ -12,8 +12,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 // app.use(express.urlencoded({ extended: true }));
-app.use("/", api);
 app.use(limiter);
+app.use("/", api);
 
 const port = process.env.PORT;
 app.listen(port, () => {
