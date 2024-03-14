@@ -1,6 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const { getBoxContents, swapItems, createBox, updateBox } = require("../controllers/boxController");
+const {
+  getBoxContents,
+  swapItems,
+  createBox,
+  updateBox,
+} = require("../controllers/boxController");
 
 const {
   register,
@@ -26,17 +31,11 @@ const authMiddleware = require("../middleware/authMiddleware");
 const errorHandlingMiddleware = require("../middleware/errorHandlingMiddleware");
 const cacheMiddleware = require("../middleware/cachingMiddleware");
 router.use(loggingMiddleware);
-
-const redisClient = require("../utils/redisClient");
+//Apply error handling middleware for all routes
+router.use(errorHandlingMiddleware);
 
 router.get("/hello", cacheMiddleware, (req, res) => {
-  const result = "Hello, from Vegbox";
-  redisClient.set(req.originalUrl, JSON.stringify(result), (err) => {
-    if (err) {
-      console.log("Error caching items:", err);
-    }
-    return res.status(200).json(result);
-  });
+  return res.status(200).json(result);
 });
 
 //add the other routes
@@ -60,8 +59,8 @@ router.put("/customers/:id/preferences", updatePreferences);
 
 //box
 router.post("/boxes/swap", swapItems);
-router.post('/boxes/:id',createBox)
-router.put('/boxes/:id/update', updateBox)
+router.post("/boxes/:id", createBox);
+router.put("/boxes/:id/update", updateBox);
 router.get(
   "/boxes/:boxId/contents",
   // authMiddleware,
@@ -69,7 +68,4 @@ router.get(
   getBoxContents
 );
 
-
-//Apply error handling middleware for all routes
-router.use(errorHandlingMiddleware);
 module.exports = router;
