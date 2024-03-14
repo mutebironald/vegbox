@@ -41,29 +41,34 @@ router.get("/hello", cacheMiddleware, (req, res) => {
 //add the other routes
 
 //vegetables
-router.post("/vegetables", createVegetable);
-router.get("/vegetables", cacheMiddleware, getAllVegetables);
-router.get("/vegetables/:id", cacheMiddleware, getvegetableById);
-router.put("/vegetables/:id", updateVegetable);
-router.delete("/vegetables/:id", deleteVegetable);
+router.post("/vegetables", authMiddleware, createVegetable);
+router.get("/vegetables", authMiddleware, cacheMiddleware, getAllVegetables);
+router.get(
+  "/vegetables/:id",
+  authMiddleware,
+  cacheMiddleware,
+  getvegetableById
+);
+router.put("/vegetables/:id", authMiddleware, updateVegetable);
+router.delete("/vegetables/:id", authMiddleware, deleteVegetable);
 
 // subscriptions
-router.post("/subscriptions", createSubscription);
-router.put("/subscriptions/:id", updateSubscription);
-router.delete("/subscriptions/:id", cancelSubscription);
+router.post("/subscriptions", authMiddleware, createSubscription);
+router.put("/subscriptions/:id", authMiddleware, updateSubscription);
+router.delete("/subscriptions/:id", authMiddleware, cancelSubscription);
 
 //customers
 router.post("/customers/register", register);
 router.post("/customers/login", login);
-router.put("/customers/:id/preferences", updatePreferences);
+router.put("/customers/:id/preferences", authMiddleware, updatePreferences);
 
 //box
-router.post("/boxes/swap", swapItems);
-router.post("/boxes/:id", createBox);
-router.put("/boxes/:id/update", updateBox);
+router.post("/boxes/swap", authMiddleware, swapItems);
+router.post("/boxes/:id", authMiddleware, createBox);
+router.put("/boxes/:id/update", authMiddleware, updateBox);
 router.get(
   "/boxes/:boxId/contents",
-  // authMiddleware,
+  authMiddleware,
   // cacheMiddleware,
   getBoxContents
 );
